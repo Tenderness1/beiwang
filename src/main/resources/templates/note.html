@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="../index.css">
+    <style>
+        /*第一种方法*/
+        #beiwang{
+            width: 800px;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+        }
+        #thing{
+            width: 800px;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+
+    <h1 id="beiwang" style="align-content: center">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp备忘录</h1>
+    <div class="panel-body" id="thing">
+        <p>每天都会有一些事情 但是你可能会记不住 在这里 你永远不会担心忘记 &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                <el-button type="primary" @click="handleAdd">添加</el-button>
+        </p>
+    </div>
+
+
+    <el-table
+            :data="crud"
+            :row-style="tableRowStyle"
+            :header-cell-style="tableHeaderColor"
+            :cell-style="rowClass"
+            height="750">
+        <el-table-column
+                fixed
+                prop="id"
+                label="编号"
+                width="250">
+        </el-table-column>
+        <el-table-column
+                prop="noteTitle"
+                label="主要内容"
+                width="1000">
+        </el-table-column>
+        <el-table-column
+                prop="beginTiming"
+                label="开始时间"
+                width="200">
+        </el-table-column>
+        <el-table-column
+                prop="endTiming"
+                label="结束时间"
+                width="200">
+        </el-table-column>
+           <!--    编辑 删除按钮    -->
+        <el-table-column label="操作">
+            <template slot-scope="scope">
+                <el-button size="mini" @click="handleEdit(scope.$index, scope.row,crud)">编辑</el-button>
+                <el-button size="mini" type="danger" @click="handleDelete(scope.$index,scope.row,crud)">删除</el-button>
+            </template>
+        </el-table-column>
+    </el-table>
+
+    <!-- 分页 -->
+    <div class="pagination">
+        <el-pagination
+                background
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                :current-page="pageCode"
+                :page-sizes="pageOption"
+                :page-size="pageSize"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="totalaElemnts">
+        </el-pagination>
+    </div>
+
+
+    <!--添加与编辑、弹出层页面-->
+    <div  v-show="show">
+
+        <el-dialog title="备忘信息" :visible.sync="dialogFormVisible">
+            <el-form>
+                <el-form-item label="内容" :label-width="formLabelWidth">
+                    <el-input v-model="formCrud.noteTitle" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="开始时间" :label-width="formLabelWidth">
+                 <!--   <el-input v-model="formCrud.beginTiming" autocomplete="off"></el-input>-->
+                    <el-date-picker type="date" placeholder="time" v-model="formCrud.beginTiming" format="yyyy-MM-dd"   value-format="yyyy-MM-dd" style="width: 100%;"></el-date-picker>
+                </el-form-item>
+                <el-form-item label="结束时间" :label-width="formLabelWidth">
+                   <!-- <el-input v-model="formCrud.endTiming"  autocomplete="off"></el-input>-->
+                    <el-date-picker type="date" placeholder="time" v-model="formCrud.endTiming"    format="yyyy-MM-dd"   value-format="yyyy-MM-dd" style="width: 100%;"></el-date-picker>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="dialogFormVisible = false" >取 消</el-button>
+                <el-button v-show="btn_show" type="primary" @click="handleUpdate">确 定</el-button>
+                <el-button type="primary" v-show="btn2_show" @click="add">确定添加</el-button>
+            </div>
+        </el-dialog>
+    </div>
+
+
+</div>
+
+
+
+</body>
+<script src="../vue.js"></script>
+<script src="../index.js"></script>
+<script src="../axios.min.js"></script>
+
+<script>
+  new Vue({
+    el: '#app',
+    data() {
+      return {
+        show: false,
+        btn_show: false,
+        btn2_show: false,
+        crud: [],
+          pageCode: 0, //默认页
+        pageSize: 10,//每页10条
+        totalPage: 10 ,//总页数
+        pageOption: [10, 50, 100],
+        totalaElemnts: 100, //总记录数
+        dialogFormVisible:false,
+        formCrud: {
+            id: '',
+            noteTitle: '',
+            beginTiming: '',
+            endTiming: '',
+        },
+          formLabelWidth: '120px'
+      }
+    },
+    methods: {
+      findByPage(pageCode, pageSize) {
+      axios.post("http://106.75.120.170:9966/page",{
+          start: pageCode,
+          length: pageSize
+      }).then( (res) => {
+          if (res.status === 200)
+          this.totalPage = res.data.size //总页数
+          this.totalaElemnts = res.data.total//总记录数
+          this.crud = res.data.noteList
+          console.log(this.crud)
+
+      }).catch((err) => {
+          console.log(err)
+      })
+
+      },
+      handleSizeChange(val) {
+        this.findByPage(this.pageCode, val)
+      },
+        handleCurrentChange(val) {
+        this.findByPage(val, this.pageSize)
+      },
+        /**
+         * 删除
+          * @param index
+         * @param row
+         * @param crud
+         */
+     handleDelete(index, row, crud) {
+       var id = crud[index].id;
+       axios.delete("http://106.75.120.170:9966/crud/" + id, {
+       }).then((res) =>{
+           this.findByPage(this.pageCode, this.pageSize)
+       }).catch((err) => {
+           console.log(err)
+       })
+     },
+        /**
+         * 编辑 之前会显数据
+         * @param index
+         * @param row
+         * @param crud
+         */
+    handleEdit(index, row, crud) {
+
+      this.show = true
+      this.dialogFormVisible = true
+      this.btn_show = true
+      this.btn2_show = false
+      this.formCrud.id = crud[index].id
+      this.formCrud.noteTitle = crud[index].noteTitle
+      this.formCrud.beginTiming = crud[index].beginTiming
+      this.formCrud.endTiming = crud[index].endTiming
+    },
+
+     /**
+      * 编辑发送ajax请求
+      */
+    handleUpdate() {
+      axios.put("http://106.75.120.170:9966/updateUser",{
+             id: this.formCrud.id,
+          noteTitle: this.formCrud.noteTitle,
+          beginTiming:  this.formCrud.beginTiming ,
+          endTiming: this.formCrud.endTiming
+      }).then((res) => {
+      //编辑成功后刷新页面
+      this.findByPage(this.pageCode, this.pageSize)
+      //关闭遮罩层
+      this.show = false
+      this.dialogFormVisible = false
+      console.log(1, res)
+      }).catch((err) => {
+      console.log(2, err)
+      })
+    },
+     /**
+      * 点击添加按钮的时候显示遮罩层,同时将编辑的按钮隐藏掉
+      */
+    handleAdd() {
+      this.show= true
+      this.dialogFormVisible = true
+      //将双向绑定数据滞空
+      this.formCrud.noteTitle= ''
+      this.formCrud.beginTiming = ''
+      this.formCrud.crudHobby = ''
+      this.formCrud.endTiming = ''
+      this.formCrud.crudAddr = ''
+      //将新编辑按钮隐藏掉
+      this.btn_show = false
+      //将新增按钮显示 v-show 其实是display：none 和black操作
+      this.btn2_show  =true
+    },
+    /**
+      *  新增
+      */
+    add() {
+      axios.post("http://106.75.120.170:9966/addCrud",{
+        noteTitle: this.formCrud.noteTitle,
+        beginTiming:  this.formCrud.beginTiming ,
+        endTiming: this.formCrud.endTiming
+      }).then((res) => {
+         //添加成功后刷新页面
+        this.findByPage(this.pageCode, this.pageSize)
+        //同时关闭遮罩层
+        this.show= true
+        this.dialogFormVisible = false
+
+      }).catch((err) => {
+          console.log(err)
+      })
+    },
+        //设置表格行的样式
+        tableRowStyle({row,rowIndex}){
+            return 'background-color:ee4f24;font-size:15px;'
+        },
+        //设置表头行的样式
+        tableHeaderColor({row,column,rowIndex,columnIndex}){
+            return 'background-color:lightblue;color:#fff;font-wight:500;font-size:20px;text-align:center'
+
+        },
+        rowClass () {
+            return 'text-align: center;'
+        }
+    },
+
+    created() {
+      this.findByPage(this.pageCode, this.pageSize)
+    },
+  })
+
+</script>
+</html>
