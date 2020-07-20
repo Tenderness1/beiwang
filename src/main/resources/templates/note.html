@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title></title>
-    <link rel="stylesheet" href="../index.css">
+   <!-- <link rel="stylesheet" href="../index.css">-->
+    <!-- 引入样式 -->
+   <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+   <!-- <script src="https://unpkg.com/element-ui/lib/index.js"></script>-->
     <style>
         /*第一种方法*/
         #beiwang{
@@ -224,14 +228,25 @@
       * 点击添加按钮的时候显示遮罩层,同时将编辑的按钮隐藏掉
       */
     handleAdd() {
-      this.show= true
+         //获取新的时间(2019.4.12）
+         let date = new Date()
+         //获取当前时间的年份转为字符串
+         let year = date.getFullYear().toString()   //'2019'
+         //获取月份，由于月份从0开始，此处要加1，判断是否小于10，如果是在字符串前面拼接'0'
+         let month = date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1).toString():(date.getMonth()+1).toString()  //'04'
+         //获取天，判断是否小于10，如果是在字符串前面拼接'0'
+         let da = date.getDate() < 10 ? '0'+date.getDate().toString():date.getDate().toString()  //'12'
+         //字符串拼接，开始时间，结束时间
+         let end = year + '-' + month + '-' + da  //当天'2019-04-12'
+         let beg = year + '-' + month + '-01'    //当月第一天'2019-04-01'
+      /*   this.dateVals = [beg,end] //将值设置给插件绑定的数据*/
+
+         this.show= true
       this.dialogFormVisible = true
       //将双向绑定数据滞空
       this.formCrud.noteTitle= ''
-      this.formCrud.beginTiming = ''
-      this.formCrud.crudHobby = ''
-      this.formCrud.endTiming = ''
-      this.formCrud.crudAddr = ''
+      this.formCrud.beginTiming = end
+      this.formCrud.endTiming = end
       //将新编辑按钮隐藏掉
       this.btn_show = false
       //将新增按钮显示 v-show 其实是display：none 和black操作

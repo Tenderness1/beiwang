@@ -1,6 +1,7 @@
 package com.itjiayan.web;
 
 
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.itjiayan.model.Note;
 import com.itjiayan.model.NoteVO;
@@ -57,7 +58,7 @@ public class NoteController {
 
         NoteVO noteVO = new NoteVO();
         Page<Note> page = new Page<>(pageVO.getStart(), pageVO.getLength());
-        Page<Note> notePage = noteService.selectPage(page, null);
+        Page<Note> notePage = noteService.selectPage(page, new EntityWrapper<Note>().eq("record_status","0"));
         noteVO.setCurrent(notePage.getCurrent());
         noteVO.setSize((int) notePage.getPages());
         noteVO.setTotal(notePage.getTotal());
@@ -85,7 +86,10 @@ public class NoteController {
         if (id.equals("")) {
             return new ResponseEntity<Object>("id不能为空", HttpStatus.NOT_FOUND);
         }
-        noteService.deleteById(id);
+        Note note = new Note();
+        note.setId(id);
+        note.setRecordStatus("1");
+        noteService.updateById(note);
         return new ResponseEntity<Object>("删除成功", HttpStatus.OK);
     }
 

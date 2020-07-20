@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itjiayan.mapper.NoteMapper">
+    <!--注意上面的namespace一定要修改-->
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.itjiayan.model.Note">
+        <id column="id" property="id" />
+        <result column="created_at" property="createdAt" />
+        <result column="updated_at" property="updatedAt" />
+        <result column="openid" property="openid" />
+        <result column="nickname" property="nickname" />
+        <result column="sex" property="sex" />
+        <result column="city" property="city" />
+        <result column="province" property="province" />
+        <result column="country" property="country" />
+        <result column="headimgurl" property="headimgurl" />
+        <result column="subscribe_time" property="subscribeTime" />
+        <result column="telephone" property="telephone" />
+        <result column="unionid" property="unionid" />
+        <result column="remark" property="remark" />
+        <result column="groupid" property="groupid" />
+        <result column="source" property="source" />
+        <result column="is_admin" property="isAdmin" />
+    </resultMap>
+
+    <!--以下是新增的方法-->
+    <select id="selectResult" resultType="com.itjiayan.model.Note">
+        select * from wx_user;
+    </select>
+
+    <select id="oneUser" parameterType="java.lang.Integer" resultType="com.test.entity.WxUser">
+        select * from wx_user WHERE id = #{id};
+    </select>
+</mapper>

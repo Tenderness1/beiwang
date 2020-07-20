@@ -44,6 +44,10 @@ public class Note extends Model<Note> {
     @TableField("end_timing")
     private Date endTiming;
 
+    @TableField("record_status")
+    private String recordStatus;
+
+
 
     @Override
     protected Serializable pkVal() {
