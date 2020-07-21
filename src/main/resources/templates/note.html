@@ -44,30 +44,31 @@
             :row-style="tableRowStyle"
             :header-cell-style="tableHeaderColor"
             :cell-style="rowClass"
-            height="750">
+            ref="topictable"
+            :height="tableHeight">
         <el-table-column
                 fixed
                 prop="id"
                 label="编号"
-                width="250">
+                min-width="10%">
         </el-table-column>
         <el-table-column
                 prop="noteTitle"
                 label="主要内容"
-                width="1000">
+                min-width="50%">
         </el-table-column>
         <el-table-column
                 prop="beginTiming"
                 label="开始时间"
-                width="200">
+                min-width="10%">
         </el-table-column>
         <el-table-column
                 prop="endTiming"
                 label="结束时间"
-                width="200">
+                min-width="10%">
         </el-table-column>
            <!--    编辑 删除按钮    -->
-        <el-table-column label="操作">
+        <el-table-column label="操作"  min-width="20%">
             <template slot-scope="scope">
                 <el-button size="mini" @click="handleEdit(scope.$index, scope.row,crud)">编辑</el-button>
                 <el-button size="mini" type="danger" @click="handleDelete(scope.$index,scope.row,crud)">删除</el-button>
@@ -145,7 +146,8 @@
             beginTiming: '',
             endTiming: '',
         },
-          formLabelWidth: '120px'
+          formLabelWidth: '120px',
+          tableHeight: 750
       }
     },
     methods: {
@@ -283,7 +285,20 @@
         rowClass () {
             return 'text-align: center;'
         }
-    },
+    },mounted:function() {
+       /*   this.tableHeight = window.innerHeight - this.$refs.table.$el.offsetTop - 100;
+          console(window.innerHeight);
+          console(this.$refs.table.$el.offsetTop);*/
+          console.log(window.innerHeight)
+          console.log(this.$refs.topictable.$el)
+          console.log(this.$refs.topictable.$el.offsetTop)
+          //window.innerHeight:浏览器的可用高度
+          //this.$refs.table.$el.offsetTop：表格距离浏览器的高度
+          //后面的50：根据需求空出的高度，自行调整
+          this.tableHeight =
+              window.innerHeight - this.$refs.topictable.$el.offsetTop - 50;
+          console.log(this.tableHeight)
+      },
 
     created() {
       this.findByPage(this.pageCode, this.pageSize)
